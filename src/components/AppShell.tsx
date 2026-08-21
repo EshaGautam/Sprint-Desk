@@ -1,11 +1,12 @@
-import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../stores/authStore';
 
 export default function AppShell() {
-  const navigate = useNavigate();
+  const logout = useAuthStore((state) => state.logout);
   const location = useLocation();
 
   const handleLogout = () => {
-    navigate('/login');
+    logout();
   };
 
   const getPageTitle = () => {
