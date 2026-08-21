@@ -53,12 +53,6 @@ const TaskCard = memo(function TaskCard({ task, users, onSelectTask }: TaskCardP
     low: 'bg-zinc-500/10 text-zinc-600 border-zinc-500/20 dark:text-zinc-400',
   };
 
-  const priorityLabels: Record<TaskPriority, string> = {
-    high: '▲ High',
-    medium: '◆ Medium',
-    low: '▼ Low',
-  };
-
   const assignee = users?.find((u) => u.id === task.assigneeId);
 
   const handleClick = () => {
