@@ -19,8 +19,8 @@ Verifies credentials and returns JSON Web Tokens.
   }
   ```
 - **Response Fields Used**:
-  - `token`: Short-lived JWT access token stored in-memory.
-  - `refreshToken`: Long-lived refresh token saved to `localStorage` for session persistence.
+  - `accessToken`: Short-lived JWT access token stored in-memory.
+  - `refreshToken`: Persisted in localStorage for session restoration and silent refresh.
   - `username`: Displays user identity in the shell.
 
 ### Token Refresh
@@ -69,6 +69,7 @@ The primary source for core project workflows.
   - `sprints`: Sprint timeline records.
   - `tasks`: Core board tasks.
   - `comments`: Discussion logs.
+  - `notifications`: Mock notification records.
 
 ---
 
