@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { useSprintTasks } from '../hooks/useSprintTasks';
 import { useBoardStore } from '../stores/boardStore';
 import { useThemeStore } from '../stores/themeStore';
@@ -59,76 +59,84 @@ export default function Analytics() {
   const tooltipLabel = isDark ? '#f1f5f9' : '#0f172a';
 
   // 1. Sprint Velocity: Completed tasks grouped by sprintId
-  const velocityMap: Record<number, number> = {};
-  tasks.forEach((t) => {
-    if (t.status === 'done' && t.sprintId) {
-      velocityMap[t.sprintId] = (velocityMap[t.sprintId] || 0) + 1;
-    }
-  });
+  const velocityData = useMemo(() => {
+    const velocityMap: Record<number, number> = {};
+    tasks.forEach((t) => {
+      if (t.status === 'done' && t.sprintId) {
+        velocityMap[t.sprintId] = (velocityMap[t.sprintId] || 0) + 1;
+      }
+    });
 
-  const velocityData = Object.keys(velocityMap)
-    .map((sId) => ({
-      name: `Sprint ${sId}`,
-      completed: velocityMap[Number(sId)],
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+    return Object.keys(velocityMap)
+      .map((sId) => ({
+        name: `Sprint ${sId}`,
+        completed: velocityMap[Number(sId)],
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [tasks]);
 
   // 2. Task Status: Task counts across columns
-  const statusCounts = {
-    backlog: 0,
-    'in-progress': 0,
-    review: 0,
-    done: 0,
-  };
-  tasks.forEach((t) => {
-    if (t.status in statusCounts) {
-      statusCounts[t.status]++;
-    }
-  });
+  const statusData = useMemo(() => {
+    const statusCounts = {
+      backlog: 0,
+      'in-progress': 0,
+      review: 0,
+      done: 0,
+    };
+    tasks.forEach((t) => {
+      if (t.status in statusCounts) {
+        statusCounts[t.status as keyof typeof statusCounts]++;
+      }
+    });
 
-  const statusData = [
-    { name: 'Backlog', value: statusCounts.backlog, color: '#6366f1' },
-    { name: 'In Progress', value: statusCounts['in-progress'], color: '#f59e0b' },
-    { name: 'Review', value: statusCounts.review, color: '#ec4899' },
-    { name: 'Done', value: statusCounts.done, color: '#10b981' },
-  ].filter((d) => d.value > 0);
+    return [
+      { name: 'Backlog', value: statusCounts.backlog, color: '#6366f1' },
+      { name: 'In Progress', value: statusCounts['in-progress'], color: '#f59e0b' },
+      { name: 'Review', value: statusCounts.review, color: '#ec4899' },
+      { name: 'Done', value: statusCounts.done, color: '#10b981' },
+    ].filter((d) => d.value > 0);
+  }, [tasks]);
 
   // 3. Priority Breakdown: low/medium/high counts per status column
-  const columnsOrder = ['backlog', 'in-progress', 'review', 'done'] as const;
-  const priorityData = columnsOrder.map((colId) => {
-    const colTasks = tasks.filter((t) => t.status === colId);
-    return {
-      name: colId === 'in-progress' ? 'In Progress' : colId.charAt(0).toUpperCase() + colId.slice(1),
-      low: colTasks.filter((t) => t.priority === 'low').length,
-      medium: colTasks.filter((t) => t.priority === 'medium').length,
-      high: colTasks.filter((t) => t.priority === 'high').length,
-    };
-  });
+  const priorityData = useMemo(() => {
+    const columnsOrder = ['backlog', 'in-progress', 'review', 'done'] as const;
+    return columnsOrder.map((colId) => {
+      const colTasks = tasks.filter((t) => t.status === colId);
+      return {
+        name: colId === 'in-progress' ? 'In Progress' : colId.charAt(0).toUpperCase() + colId.slice(1),
+        low: colTasks.filter((t) => t.priority === 'low').length,
+        medium: colTasks.filter((t) => t.priority === 'medium').length,
+        high: colTasks.filter((t) => t.priority === 'high').length,
+      };
+    });
+  }, [tasks]);
 
   // 4. Completion Trend: cumulative done tasks sorted chronologically by completedAt
-  const completedTasks = tasks
-    .filter((t) => t.status === 'done' && t.completedAt)
-    .sort((a, b) => new Date(a.completedAt!).getTime() - new Date(b.completedAt!).getTime());
+  const trendData = useMemo(() => {
+    const completedTasks = tasks
+      .filter((t) => t.status === 'done' && t.completedAt)
+      .sort((a, b) => new Date(a.completedAt!).getTime() - new Date(b.completedAt!).getTime());
 
-  const trendMap: Record<string, number> = {};
-  completedTasks.forEach((t) => {
-    if (t.completedAt) {
-      const dateKey = new Date(t.completedAt).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-      });
-      trendMap[dateKey] = (trendMap[dateKey] || 0) + 1;
-    }
-  });
+    const trendMap: Record<string, number> = {};
+    completedTasks.forEach((t) => {
+      if (t.completedAt) {
+        const dateKey = new Date(t.completedAt).toLocaleDateString(undefined, {
+          month: 'short',
+          day: 'numeric',
+        });
+        trendMap[dateKey] = (trendMap[dateKey] || 0) + 1;
+      }
+    });
 
-  let cumulative = 0;
-  const trendData = Object.keys(trendMap).map((date) => {
-    cumulative += trendMap[date];
-    return {
-      date,
-      completed: cumulative,
-    };
-  });
+    let cumulative = 0;
+    return Object.keys(trendMap).map((date) => {
+      cumulative += trendMap[date];
+      return {
+        date,
+        completed: cumulative,
+      };
+    });
+  }, [tasks]);
 
   return (
     <div className="space-y-6 max-w-full overflow-hidden">

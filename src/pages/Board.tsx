@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import {
   DndContext,
   useSensor,
@@ -19,10 +19,10 @@ import type { Task, TaskStatus, TaskPriority, User } from '../types';
 interface TaskCardProps {
   task: Task;
   users?: User[];
-  onClick: () => void;
+  onSelectTask: (id: number) => void;
 }
 
-function TaskCard({ task, users, onClick }: TaskCardProps) {
+const TaskCard = memo(function TaskCard({ task, users, onSelectTask }: TaskCardProps) {
   const { attributes, listeners, setNodeRef: setDragRef, transform, isDragging } = useDraggable({
     id: task.id,
   });
@@ -55,10 +55,14 @@ function TaskCard({ task, users, onClick }: TaskCardProps) {
 
   const assignee = users?.find((u) => u.id === task.assigneeId);
 
+  const handleClick = () => {
+    onSelectTask(task.id);
+  };
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
-      onClick();
+      onSelectTask(task.id);
     }
   };
 
@@ -68,7 +72,7 @@ function TaskCard({ task, users, onClick }: TaskCardProps) {
       style={style}
       {...listeners}
       {...attributes}
-      onClick={onClick}
+      onClick={handleClick}
       onKeyDown={handleKeyDown}
       className={`bg-white border ${
         isDragging
@@ -114,7 +118,7 @@ function TaskCard({ task, users, onClick }: TaskCardProps) {
       )}
     </div>
   );
-}
+});
 
 interface ColumnProps {
   col: { id: TaskStatus; label: string };
@@ -123,7 +127,7 @@ interface ColumnProps {
   onSelectTask: (id: number) => void;
 }
 
-function Column({ col, tasks, users, onSelectTask }: ColumnProps) {
+const Column = memo(function Column({ col, tasks, users, onSelectTask }: ColumnProps) {
   const { setNodeRef } = useDroppable({
     id: col.id,
   });
@@ -147,7 +151,7 @@ function Column({ col, tasks, users, onSelectTask }: ColumnProps) {
       <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin">
         {columnTasks.length > 0 ? (
           columnTasks.map((task) => (
-            <TaskCard key={task.id} task={task} users={users} onClick={() => onSelectTask(task.id)} />
+            <TaskCard key={task.id} task={task} users={users} onSelectTask={onSelectTask} />
           ))
         ) : (
           <div className="flex flex-col items-center justify-center py-8 px-4 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl text-slate-400 dark:text-slate-600 text-xs">
@@ -157,14 +161,23 @@ function Column({ col, tasks, users, onSelectTask }: ColumnProps) {
       </div>
     </div>
   );
-}
+});
 
 export default function Board() {
   const { data: serverTasks, isLoading: isLoadingTasks, isError: isErrorTasks } = useSprintTasks();
   const { data: users, isLoading: isLoadingUsers, isError: isErrorUsers } = useUsers();
   const { data: serverComments, isLoading: isLoadingComments } = useComments();
 
-  const { tasks, comments, initializeBoard, addTask, moveTask, editTask, deleteTask, addComment } = useBoardStore();
+  // Focused selectors for Board Store
+  const tasks = useBoardStore((state) => state.tasks);
+  const comments = useBoardStore((state) => state.comments);
+  const initializeBoard = useBoardStore((state) => state.initializeBoard);
+  const addTask = useBoardStore((state) => state.addTask);
+  const moveTask = useBoardStore((state) => state.moveTask);
+  const editTask = useBoardStore((state) => state.editTask);
+  const deleteTask = useBoardStore((state) => state.deleteTask);
+  const addComment = useBoardStore((state) => state.addComment);
+
   const currentUsername = useAuthStore((state) => state.username);
 
   // Selected task state for details drawer

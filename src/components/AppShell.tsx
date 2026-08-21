@@ -13,17 +13,16 @@ export default function AppShell() {
   // Run the polling hook
   useNotificationPolling();
 
-  const {
-    notifications,
-    isPanelOpen,
-    toastMessage,
-    setPanelOpen,
-    setToastMessage,
-    markAsRead,
-    markAllAsRead,
-  } = useNotificationStore();
+  const notifications = useNotificationStore((state) => state.notifications);
+  const isPanelOpen = useNotificationStore((state) => state.isPanelOpen);
+  const toastMessage = useNotificationStore((state) => state.toastMessage);
+  const setPanelOpen = useNotificationStore((state) => state.setPanelOpen);
+  const setToastMessage = useNotificationStore((state) => state.setToastMessage);
+  const markAsRead = useNotificationStore((state) => state.markAsRead);
+  const markAllAsRead = useNotificationStore((state) => state.markAllAsRead);
 
-  const { theme, toggleTheme } = useThemeStore();
+  const theme = useThemeStore((state) => state.theme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
 
   const [currentPage, setCurrentPage] = useState(1);
   const ITEMS_PER_PAGE = 20;
