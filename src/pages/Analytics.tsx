@@ -58,7 +58,6 @@ export default function Analytics() {
   const tooltipBorder = isDark ? '#334155' : '#e2e8f0';
   const tooltipLabel = isDark ? '#f1f5f9' : '#0f172a';
 
-  // 1. Sprint Velocity: Completed tasks grouped by sprintId
   const velocityData = useMemo(() => {
     const velocityMap: Record<number, number> = {};
     tasks.forEach((t) => {
@@ -75,7 +74,6 @@ export default function Analytics() {
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [tasks]);
 
-  // 2. Task Status: Task counts across columns
   const statusData = useMemo(() => {
     const statusCounts = {
       backlog: 0,
@@ -97,7 +95,6 @@ export default function Analytics() {
     ].filter((d) => d.value > 0);
   }, [tasks]);
 
-  // 3. Priority Breakdown: low/medium/high counts per status column
   const priorityData = useMemo(() => {
     const columnsOrder = ['backlog', 'in-progress', 'review', 'done'] as const;
     return columnsOrder.map((colId) => {
@@ -111,7 +108,6 @@ export default function Analytics() {
     });
   }, [tasks]);
 
-  // 4. Completion Trend: cumulative done tasks sorted chronologically by completedAt
   const trendData = useMemo(() => {
     const completedTasks = tasks
       .filter((t) => t.status === 'done' && t.completedAt)
@@ -146,7 +142,6 @@ export default function Analytics() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* 1. Sprint Velocity */}
         <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Sprint Velocity</h2>
           <div className="flex-1 min-h-0 w-full">
@@ -171,7 +166,6 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* 2. Task Status */}
         <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Task Status</h2>
           <div className="flex-1 min-h-0 w-full">
@@ -205,7 +199,6 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* 3. Priority Breakdown */}
         <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Priority Breakdown</h2>
           <div className="flex-1 min-h-0 w-full">
@@ -227,7 +220,6 @@ export default function Analytics() {
           </div>
         </div>
 
-        {/* 4. Completion Trend */}
         <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
           <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Completion Trend</h2>
           <div className="flex-1 min-h-0 w-full">

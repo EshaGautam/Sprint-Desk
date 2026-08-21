@@ -29,7 +29,6 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
     };
   }, [isOpen, onClose]);
 
-  // Focus Trapping Effect
   useEffect(() => {
     if (!isOpen) return;
 
@@ -42,7 +41,6 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
       const firstElement = focusableElements[0] as HTMLElement;
       const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
-      // Set initial focus
       firstElement.focus();
 
       const handleTab = (e: KeyboardEvent) => {

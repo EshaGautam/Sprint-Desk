@@ -168,7 +168,6 @@ export default function Board() {
   const { data: users, isLoading: isLoadingUsers, isError: isErrorUsers } = useUsers();
   const { data: serverComments, isLoading: isLoadingComments } = useComments();
 
-  // Focused selectors for Board Store
   const tasks = useBoardStore((state) => state.tasks);
   const comments = useBoardStore((state) => state.comments);
   const initializeBoard = useBoardStore((state) => state.initializeBoard);
@@ -180,10 +179,8 @@ export default function Board() {
 
   const currentUsername = useAuthStore((state) => state.username);
 
-  // Selected task state for details drawer
   const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
 
-  // Form states for editing
   const [editTitle, setEditTitle] = useState('');
   const [editDescription, setEditDescription] = useState('');
   const [editStatus, setEditStatus] = useState<TaskStatus>('backlog');
@@ -191,10 +188,8 @@ export default function Board() {
   const [editAssigneeId, setEditAssigneeId] = useState<number>(0);
   const [editDueDate, setEditDueDate] = useState('');
 
-  // Comment input state
   const [newCommentMessage, setNewCommentMessage] = useState('');
 
-  // Add Task Modal state
   const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
@@ -203,12 +198,10 @@ export default function Board() {
   const [newAssigneeId, setNewAssigneeId] = useState<number>(0);
   const [newDueDate, setNewDueDate] = useState('');
 
-  // Delete Confirm Modal state
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
 
   const selectedTask = tasks.find((t) => t.id === selectedTaskId);
 
-  // Populate edit fields when task selection changes
   useEffect(() => {
     if (selectedTask) {
       setEditTitle(selectedTask.title);
@@ -368,7 +361,6 @@ export default function Board() {
 
   return (
     <div className="space-y-6">
-      {/* Top Header Control bar */}
       <div className="flex justify-between items-center bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/85 rounded-2xl p-4 transition-colors duration-200">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-wide">Kanban Board</h1>
@@ -387,11 +379,9 @@ export default function Board() {
         </div>
       </DndContext>
 
-      {/* Task Details Side Drawer */}
       <Drawer isOpen={selectedTaskId !== null} onClose={() => setSelectedTaskId(null)} title="Task Details">
         {selectedTask ? (
           <div className="space-y-6">
-            {/* Edit Fields Form */}
             <form onSubmit={handleSaveTask} className="space-y-4">
               <Input
                 label="Task Title"
@@ -439,7 +429,6 @@ export default function Board() {
               </Button>
             </form>
 
-            {/* Comments Area */}
             <div className="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
               <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200">Comments ({taskComments.length})</h3>
 
@@ -490,7 +479,6 @@ export default function Board() {
                 )}
               </div>
 
-              {/* Add Comment Input Form */}
               <form onSubmit={handleAddComment} className="flex gap-2">
                 <Input
                   id="new-comment"
@@ -506,7 +494,6 @@ export default function Board() {
               </form>
             </div>
 
-            {/* Delete Block */}
             <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
               <Button onClick={() => setIsDeleteConfirmOpen(true)} variant="danger" className="w-full">
                 Delete Task
@@ -516,7 +503,6 @@ export default function Board() {
         ) : null}
       </Drawer>
 
-      {/* Create Task Modal */}
       <Modal isOpen={isAddTaskOpen} onClose={() => setIsAddTaskOpen(false)} title="Create New Task">
         <form onSubmit={handleAddTask} className="space-y-4">
           <Input
@@ -573,7 +559,6 @@ export default function Board() {
         </form>
       </Modal>
 
-      {/* Delete Confirmation Modal */}
       <Modal isOpen={isDeleteConfirmOpen} onClose={() => setIsDeleteConfirmOpen(false)} title="Confirm Task Deletion">
         <div className="space-y-4">
           <p className="text-sm text-slate-700 dark:text-slate-300">

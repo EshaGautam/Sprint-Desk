@@ -29,7 +29,6 @@ export default function Drawer({ isOpen, onClose, title, children }: DrawerProps
     };
   }, [isOpen, onClose]);
 
-  // Focus Trapping Effect
   useEffect(() => {
     if (!isOpen) return;
 
@@ -42,7 +41,6 @@ export default function Drawer({ isOpen, onClose, title, children }: DrawerProps
       const firstElement = focusableElements[0] as HTMLElement;
       const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
 
-      // Set initial focus
       firstElement.focus();
 
       const handleTab = (e: KeyboardEvent) => {
@@ -72,14 +70,12 @@ export default function Drawer({ isOpen, onClose, title, children }: DrawerProps
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
-      {/* Backdrop */}
       <div
         className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* Drawer Card */}
       <div
         ref={drawerRef}
         role="dialog"
@@ -87,7 +83,6 @@ export default function Drawer({ isOpen, onClose, title, children }: DrawerProps
         aria-labelledby="drawer-title"
         className="relative w-full max-w-lg h-full bg-white border-l border-slate-200 text-slate-900 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100 shadow-2xl flex flex-col transition-transform duration-300"
       >
-        {/* Header */}
         <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <h2 id="drawer-title" className="text-lg font-bold tracking-wide">
             {title}
@@ -103,7 +98,6 @@ export default function Drawer({ isOpen, onClose, title, children }: DrawerProps
           </button>
         </div>
 
-        {/* Content Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {children}
         </div>

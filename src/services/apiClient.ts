@@ -65,7 +65,6 @@ export async function authenticatedFetch(url: string, options: RequestInit = {})
       const newAccessToken = await refreshPromise;
       refreshPromise = null;
 
-      // Retry original failed request
       const retryHeaders = new Headers(options.headers || {});
       retryHeaders.set('Authorization', `Bearer ${newAccessToken}`);
       return fetch(url, { ...options, headers: retryHeaders });

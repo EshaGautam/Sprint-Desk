@@ -16,7 +16,6 @@ export function useNotificationPolling() {
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
   }, []);
 
-  // Poll JSONPlaceholder
   const { data: posts, isSuccess } = useQuery({
     queryKey: ['notificationPosts'],
     queryFn: () => fetchNotificationPosts(),
@@ -24,7 +23,6 @@ export function useNotificationPolling() {
     refetchOnWindowFocus: true,
   });
 
-  // Process incoming posts
   useEffect(() => {
     if (isSuccess && posts) {
       const existingIds = new Set(notifications.map((n) => n.id));
@@ -40,7 +38,6 @@ export function useNotificationPolling() {
       if (fresh.length > 0) {
         addNotifications(fresh);
 
-        // Show toast for the latest notification title if panel is closed
         if (!isPanelOpen) {
           setToastMessage(fresh[0].title);
         }

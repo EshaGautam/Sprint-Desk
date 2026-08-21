@@ -2,8 +2,10 @@ import { render, screen, fireEvent, act } from '@testing-library/react';
 import { describe, it, expect, beforeEach } from 'vitest';
 import AppShell from '../components/AppShell';
 import { useThemeStore } from '../stores/themeStore';
+import { useAuthStore } from '../stores/authStore';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MemoryRouter } from 'react-router-dom';
+import App from '../App';
 
 describe('Application Theme Switcher', () => {
   let queryClient: QueryClient;
@@ -70,4 +72,33 @@ describe('Application Theme Switcher', () => {
     fireEvent.click(toggleBtn);
     expect(useThemeStore.getState().theme).toBe('dark');
   });
+
+  it('synchronizes the root HTML class with the active theme', async () => {
+    useThemeStore.getState().setTheme('dark');
+    useAuthStore.setState({
+      accessToken: 'fake-access-token',
+      isAuthenticated: true,
+      isInitialLoading: false,
+      username: 'emilys',
+    });
+
+    render(
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    );
+
+    const toggleBtn = await screen.findByTestId('theme-toggle');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(document.body.classList.contains('dark')).toBe(true);
+
+    fireEvent.click(toggleBtn);
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+    expect(document.body.classList.contains('dark')).toBe(false);
+
+    fireEvent.click(toggleBtn);
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+    expect(document.body.classList.contains('dark')).toBe(true);
+  });
 });
+

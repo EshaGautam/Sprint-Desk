@@ -10,7 +10,6 @@ export default function AppShell() {
   const logout = useAuthStore((state) => state.logout);
   const location = useLocation();
 
-  // Run the polling hook
   useNotificationPolling();
 
   const notifications = useNotificationStore((state) => state.notifications);
@@ -65,7 +64,6 @@ export default function AppShell() {
 
   return (
     <div className="flex h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
-      {/* Sidebar */}
       <aside className="w-64 bg-slate-100 border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 flex flex-col transition-colors duration-200">
         <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800">
           <span className="text-lg font-bold tracking-wide">SprintDesk</span>
@@ -97,14 +95,11 @@ export default function AppShell() {
         </div>
       </aside>
 
-      {/* Main Content Area */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Header */}
         <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 dark:bg-slate-900 dark:border-slate-800 relative transition-colors duration-200">
           <h2 className="text-xl font-bold tracking-wide">{getPageTitle()}</h2>
 
           <div className="flex items-center gap-2 relative">
-            {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
               className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-xl"
@@ -112,19 +107,16 @@ export default function AppShell() {
               data-testid="theme-toggle"
             >
               {theme === 'dark' ? (
-                // Sun Icon (switching to light)
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m12.728 12.728l.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
                 </svg>
               ) : (
-                // Moon Icon (switching to dark)
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
                 </svg>
               )}
             </button>
 
-            {/* Notification Bell */}
             <button
               onClick={togglePanel}
               className="relative p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-xl"
@@ -144,7 +136,6 @@ export default function AppShell() {
               )}
             </button>
 
-            {/* Notification Panel overlay dropdown */}
             {isPanelOpen && (
               <div
                 role="dialog"
@@ -226,13 +217,11 @@ export default function AppShell() {
           </div>
         </header>
 
-        {/* Page Content */}
         <main className="flex-1 overflow-y-auto p-6 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
           <Outlet />
         </main>
       </div>
 
-      {/* Global new notifications Toast */}
       <Toast
         message={toastMessage || ''}
         isVisible={toastMessage !== null}
