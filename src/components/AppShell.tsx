@@ -169,7 +169,15 @@ export default function AppShell() {
                     paginatedNotifications.map((item) => (
                       <div
                         key={item.id}
+                        role="button"
+                        tabIndex={0}
                         onClick={() => markAsRead(item.id)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter' || e.key === ' ') {
+                            e.preventDefault();
+                            markAsRead(item.id);
+                          }
+                        }}
                         className={`p-3 rounded-xl border ${
                           item.read
                             ? 'bg-slate-50 border-slate-200 text-slate-400 dark:bg-slate-950/40 dark:border-slate-900 dark:text-slate-500'

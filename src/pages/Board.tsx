@@ -55,6 +55,13 @@ function TaskCard({ task, users, onClick }: TaskCardProps) {
 
   const assignee = users?.find((u) => u.id === task.assigneeId);
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      onClick();
+    }
+  };
+
   return (
     <div
       ref={setCombinedRef}
@@ -62,6 +69,7 @@ function TaskCard({ task, users, onClick }: TaskCardProps) {
       {...listeners}
       {...attributes}
       onClick={onClick}
+      onKeyDown={handleKeyDown}
       className={`bg-white border ${
         isDragging
           ? 'border-indigo-500 shadow-xl'
@@ -473,6 +481,7 @@ export default function Board() {
               <form onSubmit={handleAddComment} className="flex gap-2">
                 <Input
                   id="new-comment"
+                  aria-label="Write a comment"
                   value={newCommentMessage}
                   onChange={(e) => setNewCommentMessage(e.target.value)}
                   placeholder="Write a comment..."

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
 
 export interface DrawerProps {
@@ -9,6 +9,8 @@ export interface DrawerProps {
 }
 
 export default function Drawer({ isOpen, onClose, title, children }: DrawerProps) {
+  const drawerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -27,6 +29,45 @@ export default function Drawer({ isOpen, onClose, title, children }: DrawerProps
     };
   }, [isOpen, onClose]);
 
+  // Focus Trapping Effect
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const timer = setTimeout(() => {
+      const focusableElements = drawerRef.current?.querySelectorAll(
+        'button, [href], input, select, textarea, [tabindex="0"]'
+      );
+      if (!focusableElements || focusableElements.length === 0) return;
+
+      const firstElement = focusableElements[0] as HTMLElement;
+      const lastElement = focusableElements[focusableElements.length - 1] as HTMLElement;
+
+      // Set initial focus
+      firstElement.focus();
+
+      const handleTab = (e: KeyboardEvent) => {
+        if (e.key !== 'Tab') return;
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstElement) {
+            lastElement.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastElement) {
+            firstElement.focus();
+            e.preventDefault();
+          }
+        }
+      };
+
+      window.addEventListener('keydown', handleTab);
+      return () => window.removeEventListener('keydown', handleTab);
+    }, 50);
+
+    return () => clearTimeout(timer);
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -40,6 +81,7 @@ export default function Drawer({ isOpen, onClose, title, children }: DrawerProps
 
       {/* Drawer Card */}
       <div
+        ref={drawerRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"
