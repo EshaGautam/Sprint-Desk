@@ -25,7 +25,7 @@ export default function Select({
   return (
     <div className="space-y-1.5 w-full">
       {label && id && (
-        <label htmlFor={id} className="block text-xs font-semibold text-slate-400 uppercase tracking-wider">
+        <label htmlFor={id} className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
           {label}
         </label>
       )}
@@ -33,8 +33,8 @@ export default function Select({
         <select
           id={id}
           disabled={disabled}
-          className={`w-full px-4 py-2.5 rounded-lg bg-slate-950 border text-sm text-slate-100 outline-none appearance-none transition-all duration-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed pr-10 ${
-            error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-800'
+          className={`w-full px-4 py-2.5 rounded-lg bg-slate-100 border text-sm text-slate-900 dark:bg-slate-950 dark:text-slate-100 outline-none appearance-none transition-all duration-200 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed pr-10 ${
+            error ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : 'border-slate-300 dark:border-slate-800'
           } ${className}`}
           {...props}
         >
@@ -44,7 +44,7 @@ export default function Select({
             </option>
           )}
           {options.map((option) => (
-            <option key={option.value} value={option.value} className="bg-slate-900 text-slate-100">
+            <option key={option.value} value={option.value} className="bg-white text-slate-900 dark:bg-slate-900 dark:text-slate-100">
               {option.label}
             </option>
           ))}

@@ -43,16 +43,16 @@ export default function Drawer({ isOpen, onClose, title, children }: DrawerProps
         role="dialog"
         aria-modal="true"
         aria-labelledby="drawer-title"
-        className="relative w-full max-w-lg h-full bg-slate-900 border-l border-slate-800 text-slate-100 shadow-2xl flex flex-col transition-transform duration-300"
+        className="relative w-full max-w-lg h-full bg-white border-l border-slate-200 text-slate-900 dark:bg-slate-900 dark:border-slate-800 dark:text-slate-100 shadow-2xl flex flex-col transition-transform duration-300"
       >
         {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-800 flex items-center justify-between">
+        <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
           <h2 id="drawer-title" className="text-lg font-bold tracking-wide">
             {title}
           </h2>
           <button
             onClick={onClose}
-            className="p-1 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-slate-200 transition-colors"
+            className="p-1 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-800 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors"
             aria-label="Close drawer"
           >
             <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">

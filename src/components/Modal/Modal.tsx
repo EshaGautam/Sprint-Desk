@@ -39,25 +39,25 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
         role="dialog"
         aria-modal="true"
         aria-labelledby={title ? 'modal-title' : undefined}
-        className="relative w-full max-w-lg bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-10 p-6 flex flex-col max-h-[90vh]"
+        className="relative w-full max-w-lg bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl shadow-2xl overflow-hidden z-10 p-6 flex flex-col max-h-[90vh]"
       >
-        <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+        <div className="flex items-center justify-between pb-4 border-b border-slate-200 dark:border-slate-800">
           {title && (
-            <h3 id="modal-title" className="text-lg font-bold text-slate-100">
+            <h3 id="modal-title" className="text-lg font-bold text-slate-900 dark:text-slate-100">
               {title}
             </h3>
           )}
           <button
             onClick={onClose}
             aria-label="Close modal"
-            className="text-slate-400 hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-800 transition-colors"
+            className="text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto pt-4 text-slate-300 text-sm">
+        <div className="flex-1 overflow-y-auto pt-4 text-slate-600 dark:text-slate-300 text-sm">
           {children}
         </div>
       </div>

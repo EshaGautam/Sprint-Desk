@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { useSprintTasks } from '../hooks/useSprintTasks';
 import { useBoardStore } from '../stores/boardStore';
+import { useThemeStore } from '../stores/themeStore';
 import {
   ResponsiveContainer,
   BarChart,
@@ -20,6 +21,7 @@ import {
 export default function Analytics() {
   const { data: serverTasks, isLoading, isError } = useSprintTasks();
   const { tasks, initializeBoard, hasInitialized } = useBoardStore();
+  const { theme } = useThemeStore();
 
   useEffect(() => {
     if (serverTasks && !hasInitialized) {
@@ -30,12 +32,12 @@ export default function Analytics() {
   if (isLoading) {
     return (
       <div className="space-y-6">
-        <div className="h-12 bg-slate-900/60 rounded-xl animate-pulse w-1/4" />
+        <div className="h-12 bg-slate-200 dark:bg-slate-900/60 rounded-xl animate-pulse w-1/4" />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="h-[350px] bg-slate-900/60 rounded-2xl animate-pulse" />
-          <div className="h-[350px] bg-slate-900/60 rounded-2xl animate-pulse" />
-          <div className="h-[350px] bg-slate-900/60 rounded-2xl animate-pulse" />
-          <div className="h-[350px] bg-slate-900/60 rounded-2xl animate-pulse" />
+          <div className="h-[350px] bg-slate-200 dark:bg-slate-900/60 rounded-2xl animate-pulse" />
+          <div className="h-[350px] bg-slate-200 dark:bg-slate-900/60 rounded-2xl animate-pulse" />
+          <div className="h-[350px] bg-slate-200 dark:bg-slate-900/60 rounded-2xl animate-pulse" />
+          <div className="h-[350px] bg-slate-200 dark:bg-slate-900/60 rounded-2xl animate-pulse" />
         </div>
       </div>
     );
@@ -48,6 +50,13 @@ export default function Analytics() {
       </div>
     );
   }
+
+  const isDark = theme === 'dark';
+  const gridStroke = isDark ? '#1e293b' : '#e2e8f0';
+  const axisStroke = isDark ? '#94a3b8' : '#64748b';
+  const tooltipBg = isDark ? '#0f172a' : '#ffffff';
+  const tooltipBorder = isDark ? '#334155' : '#e2e8f0';
+  const tooltipLabel = isDark ? '#f1f5f9' : '#0f172a';
 
   // 1. Sprint Velocity: Completed tasks grouped by sprintId
   const velocityMap: Record<number, number> = {};
@@ -124,30 +133,30 @@ export default function Analytics() {
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
       <div>
-        <h1 className="text-xl font-bold text-slate-100 tracking-wide">Analytics</h1>
-        <p className="text-xs text-slate-400 mt-1">Real-time metrics and progress insights.</p>
+        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-wide">Analytics</h1>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Real-time metrics and progress insights.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* 1. Sprint Velocity */}
-        <div className="bg-slate-900 border border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px]">
-          <h2 className="text-sm font-semibold text-slate-200 mb-4 tracking-wide">Sprint Velocity</h2>
+        <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Sprint Velocity</h2>
           <div className="flex-1 min-h-0 w-full">
             {velocityData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={velocityData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                  <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} allowDecimals={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                  <XAxis dataKey="name" stroke={axisStroke} fontSize={11} tickLine={false} />
+                  <YAxis stroke={axisStroke} fontSize={11} tickLine={false} allowDecimals={false} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '10px' }}
-                    labelStyle={{ color: '#f1f5f9', fontWeight: '600' }}
+                    contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '10px' }}
+                    labelStyle={{ color: tooltipLabel, fontWeight: '600' }}
                   />
                   <Bar dataKey="completed" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={45} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-xs text-slate-500 italic">
+              <div className="h-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 italic">
                 No completed tasks found for Sprint Velocity.
               </div>
             )}
@@ -155,8 +164,8 @@ export default function Analytics() {
         </div>
 
         {/* 2. Task Status */}
-        <div className="bg-slate-900 border border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px]">
-          <h2 className="text-sm font-semibold text-slate-200 mb-4 tracking-wide">Task Status</h2>
+        <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Task Status</h2>
           <div className="flex-1 min-h-0 w-full">
             {statusData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -175,13 +184,13 @@ export default function Analytics() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '10px' }}
+                    contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '10px' }}
                   />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-xs text-slate-500 italic">
+              <div className="h-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 italic">
                 No tasks available for Status breakdown.
               </div>
             )}
@@ -189,17 +198,17 @@ export default function Analytics() {
         </div>
 
         {/* 3. Priority Breakdown */}
-        <div className="bg-slate-900 border border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px]">
-          <h2 className="text-sm font-semibold text-slate-200 mb-4 tracking-wide">Priority Breakdown</h2>
+        <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Priority Breakdown</h2>
           <div className="flex-1 min-h-0 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={priorityData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
-                <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} allowDecimals={false} />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} vertical={false} />
+                <XAxis dataKey="name" stroke={axisStroke} fontSize={11} tickLine={false} />
+                <YAxis stroke={axisStroke} fontSize={11} tickLine={false} allowDecimals={false} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '10px' }}
-                  labelStyle={{ color: '#f1f5f9', fontWeight: '600' }}
+                  contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '10px' }}
+                  labelStyle={{ color: tooltipLabel, fontWeight: '600' }}
                 />
                 <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: 11 }} />
                 <Bar dataKey="low" name="Low" stackId="a" fill="#94a3b8" />
@@ -211,24 +220,24 @@ export default function Analytics() {
         </div>
 
         {/* 4. Completion Trend */}
-        <div className="bg-slate-900 border border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px]">
-          <h2 className="text-sm font-semibold text-slate-200 mb-4 tracking-wide">Completion Trend</h2>
+        <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
+          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Completion Trend</h2>
           <div className="flex-1 min-h-0 w-full">
             {trendData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={trendData} margin={{ top: 10, right: 15, left: -25, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
-                  <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} tickLine={false} />
-                  <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} allowDecimals={false} />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                  <XAxis dataKey="date" stroke={axisStroke} fontSize={11} tickLine={false} />
+                  <YAxis stroke={axisStroke} fontSize={11} tickLine={false} allowDecimals={false} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '10px' }}
-                    labelStyle={{ color: '#f1f5f9', fontWeight: '600' }}
+                    contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '10px' }}
+                    labelStyle={{ color: tooltipLabel, fontWeight: '600' }}
                   />
                   <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-xs text-slate-500 italic">
+              <div className="h-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 italic">
                 No completion date data recorded yet.
               </div>
             )}

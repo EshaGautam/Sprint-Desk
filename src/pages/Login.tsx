@@ -13,9 +13,9 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-2xl p-8">
-        <h1 className="text-2xl font-bold mb-6 text-center text-slate-100">SprintDesk Login</h1>
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-4 transition-colors duration-200">
+      <div className="w-full max-w-md bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl p-8 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+        <h1 className="text-2xl font-bold mb-6 text-center text-slate-900 dark:text-slate-100">SprintDesk Login</h1>
 
         {loginMutation.isError && (
           <div className="mb-4 p-3 bg-red-950/60 border border-red-800 text-red-200 rounded-lg text-xs font-medium" role="alert">

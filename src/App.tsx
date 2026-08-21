@@ -5,6 +5,7 @@ import FullScreenLoading from './components/FullScreenLoading';
 import ProtectedRoute from './components/ProtectedRoute';
 import PublicOnlyRoute from './components/PublicOnlyRoute';
 import { useAuthStore } from './stores/authStore';
+import { useThemeStore } from './stores/themeStore';
 
 const Login = lazy(() => import('./pages/Login'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -13,10 +14,20 @@ const Analytics = lazy(() => import('./pages/Analytics'));
 
 function App() {
   const { isInitialLoading, initializeSession } = useAuthStore();
+  const theme = useThemeStore((state) => state.theme);
 
   useEffect(() => {
     initializeSession();
   }, [initializeSession]);
+
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (theme === 'dark') {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [theme]);
 
   if (isInitialLoading) {
     return <FullScreenLoading />;
