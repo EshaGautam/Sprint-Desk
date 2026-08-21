@@ -25,7 +25,7 @@ export default function Toast({
   if (!isVisible) return null;
 
   const bgTypes = {
-    info: 'bg-indigo-950/90 border-indigo-800 text-indigo-200',
+    info: 'bg-zinc-900 border-zinc-800 text-zinc-100 dark:bg-zinc-950 dark:border-zinc-800',
     success: 'bg-emerald-950/90 border-emerald-800 text-emerald-200',
     warning: 'bg-amber-950/90 border-amber-800 text-amber-200',
     error: 'bg-red-950/90 border-red-800 text-red-200',
@@ -33,7 +33,7 @@ export default function Toast({
 
   const icons = {
     info: (
-      <svg className="h-5 w-5 text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <svg className="h-5 w-5 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
       </svg>
     ),

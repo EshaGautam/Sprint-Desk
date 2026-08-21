@@ -88,10 +88,10 @@ export default function Analytics() {
     });
 
     return [
-      { name: 'Backlog', value: statusCounts.backlog, color: '#6366f1' },
-      { name: 'In Progress', value: statusCounts['in-progress'], color: '#f59e0b' },
-      { name: 'Review', value: statusCounts.review, color: '#ec4899' },
-      { name: 'Done', value: statusCounts.done, color: '#10b981' },
+      { name: 'Backlog', value: statusCounts.backlog, color: '#71717a' },
+      { name: 'In Progress', value: statusCounts['in-progress'], color: '#d97706' },
+      { name: 'Review', value: statusCounts.review, color: '#0d9488' },
+      { name: 'Done', value: statusCounts.done, color: '#059669' },
     ].filter((d) => d.value > 0);
   }, [tasks]);
 
@@ -136,14 +136,14 @@ export default function Analytics() {
 
   return (
     <div className="space-y-6 max-w-full overflow-hidden">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-wide">Analytics</h1>
-        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Real-time metrics and progress insights.</p>
+      <div className="bg-white border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800/80 rounded-lg p-4 transition-colors duration-200">
+        <h1 className="text-base font-bold text-zinc-850 dark:text-zinc-200 tracking-wide uppercase">Analytics</h1>
+        <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Real-time metrics and progress insights.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Sprint Velocity</h2>
+        <div className="bg-white border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800/80 rounded-lg p-5 flex flex-col h-[350px] transition-colors duration-200">
+          <h2 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-4 tracking-wider uppercase">Sprint Velocity</h2>
           <div className="flex-1 min-h-0 w-full">
             {velocityData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -152,22 +152,22 @@ export default function Analytics() {
                   <XAxis dataKey="name" stroke={axisStroke} fontSize={11} tickLine={false} />
                   <YAxis stroke={axisStroke} fontSize={11} tickLine={false} allowDecimals={false} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '10px' }}
+                    contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '6px' }}
                     labelStyle={{ color: tooltipLabel, fontWeight: '600' }}
                   />
-                  <Bar dataKey="completed" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={45} />
+                  <Bar dataKey="completed" fill="#059669" radius={[4, 4, 0, 0]} maxBarSize={45} />
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 italic">
+              <div className="h-full flex items-center justify-center text-xs text-zinc-400 dark:text-zinc-500 italic">
                 No completed tasks found for Sprint Velocity.
               </div>
             )}
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Task Status</h2>
+        <div className="bg-white border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800/80 rounded-lg p-5 flex flex-col h-[350px] transition-colors duration-200">
+          <h2 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-4 tracking-wider uppercase">Task Status</h2>
           <div className="flex-1 min-h-0 w-full">
             {statusData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -186,21 +186,21 @@ export default function Analytics() {
                     ))}
                   </Pie>
                   <Tooltip
-                    contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '10px' }}
+                    contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '6px' }}
                   />
                   <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 11 }} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 italic">
+              <div className="h-full flex items-center justify-center text-xs text-zinc-400 dark:text-zinc-500 italic">
                 No tasks available for Status breakdown.
               </div>
             )}
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Priority Breakdown</h2>
+        <div className="bg-white border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800/80 rounded-lg p-5 flex flex-col h-[350px] transition-colors duration-200">
+          <h2 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-4 tracking-wider uppercase">Priority Breakdown</h2>
           <div className="flex-1 min-h-0 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={priorityData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
@@ -208,20 +208,20 @@ export default function Analytics() {
                 <XAxis dataKey="name" stroke={axisStroke} fontSize={11} tickLine={false} />
                 <YAxis stroke={axisStroke} fontSize={11} tickLine={false} allowDecimals={false} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '10px' }}
+                  contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '6px' }}
                   labelStyle={{ color: tooltipLabel, fontWeight: '600' }}
                 />
                 <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: 11 }} />
-                <Bar dataKey="low" name="Low" stackId="a" fill="#94a3b8" />
-                <Bar dataKey="medium" name="Medium" stackId="a" fill="#f59e0b" />
-                <Bar dataKey="high" name="High" stackId="a" fill="#ef4444" />
+                <Bar dataKey="low" name="Low" stackId="a" fill="#a1a1aa" />
+                <Bar dataKey="medium" name="Medium" stackId="a" fill="#d97706" />
+                <Bar dataKey="high" name="High" stackId="a" fill="#e11d48" />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px] transition-colors duration-200">
-          <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 tracking-wide">Completion Trend</h2>
+        <div className="bg-white border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800/80 rounded-lg p-5 flex flex-col h-[350px] transition-colors duration-200">
+          <h2 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 mb-4 tracking-wider uppercase">Completion Trend</h2>
           <div className="flex-1 min-h-0 w-full">
             {trendData.length > 0 ? (
               <ResponsiveContainer width="100%" height="100%">
@@ -230,14 +230,14 @@ export default function Analytics() {
                   <XAxis dataKey="date" stroke={axisStroke} fontSize={11} tickLine={false} />
                   <YAxis stroke={axisStroke} fontSize={11} tickLine={false} allowDecimals={false} />
                   <Tooltip
-                    contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '10px' }}
+                    contentStyle={{ backgroundColor: tooltipBg, borderColor: tooltipBorder, borderRadius: '6px' }}
                     labelStyle={{ color: tooltipLabel, fontWeight: '600' }}
                   />
-                  <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
+                  <Line type="monotone" dataKey="completed" stroke="#059669" strokeWidth={2} dot={{ r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
             ) : (
-              <div className="h-full flex items-center justify-center text-xs text-slate-400 dark:text-slate-500 italic">
+              <div className="h-full flex items-center justify-center text-xs text-zinc-400 dark:text-zinc-500 italic">
                 No completion date data recorded yet.
               </div>
             )}

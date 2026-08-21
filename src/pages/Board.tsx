@@ -48,9 +48,15 @@ const TaskCard = memo(function TaskCard({ task, users, onSelectTask }: TaskCardP
       };
 
   const priorityColors: Record<TaskPriority, string> = {
-    high: 'bg-red-500/10 text-red-600 border-red-500/25 dark:text-red-400 dark:border-red-500/20',
-    medium: 'bg-amber-500/10 text-amber-600 border-amber-500/25 dark:text-amber-400 dark:border-amber-500/20',
-    low: 'bg-slate-500/10 text-slate-600 border-slate-500/25 dark:text-slate-400 dark:border-slate-500/20',
+    high: 'bg-red-500/10 text-red-600 border-red-500/20 dark:text-red-400',
+    medium: 'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400',
+    low: 'bg-zinc-500/10 text-zinc-600 border-zinc-500/20 dark:text-zinc-400',
+  };
+
+  const priorityLabels: Record<TaskPriority, string> = {
+    high: '▲ High',
+    medium: '◆ Medium',
+    low: '▼ Low',
   };
 
   const assignee = users?.find((u) => u.id === task.assigneeId);
@@ -76,26 +82,27 @@ const TaskCard = memo(function TaskCard({ task, users, onSelectTask }: TaskCardP
       onKeyDown={handleKeyDown}
       className={`bg-white border ${
         isDragging
-          ? 'border-indigo-500 shadow-xl'
-          : 'border-slate-200 hover:border-slate-300 dark:border-slate-800/60 dark:hover:border-slate-700/60'
-      } dark:bg-slate-900 rounded-xl p-4 space-y-3 transition-colors cursor-pointer select-none`}
+          ? 'border-emerald-600 shadow-sm'
+          : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-800/60 dark:hover:border-zinc-700/60'
+      } dark:bg-zinc-900 rounded-lg p-4 space-y-3 transition-colors cursor-pointer select-none`}
       data-testid={`task-card-${task.id}`}
     >
-      <h4 className="text-slate-900 dark:text-slate-100 font-medium text-sm leading-snug break-words">
+      <h4 className="text-zinc-900 dark:text-zinc-100 font-medium text-sm leading-snug break-words">
         {task.title}
       </h4>
 
       <div className="flex flex-wrap gap-2 items-center justify-between text-xs pt-1">
         <span
-          className={`px-2 py-0.5 rounded-md border text-[10px] uppercase font-bold tracking-wider ${
+          className={`px-2 py-0.5 rounded border text-[10px] uppercase font-bold tracking-wider flex items-center gap-1 ${
             priorityColors[task.priority]
           }`}
         >
-          {task.priority}
+          <span>{task.priority === 'high' ? '▲' : task.priority === 'medium' ? '◆' : '▼'}</span>
+          <span>{task.priority}</span>
         </span>
 
         {task.dueDate && (
-          <span className="text-slate-500 dark:text-slate-400 font-medium">
+          <span className="text-zinc-500 dark:text-zinc-400 font-medium">
             Due {new Date(task.dueDate).toLocaleDateString(undefined, {
               month: 'short',
               day: 'numeric',
@@ -105,13 +112,13 @@ const TaskCard = memo(function TaskCard({ task, users, onSelectTask }: TaskCardP
       </div>
 
       {assignee && (
-        <div className="flex items-center gap-2 pt-2 border-t border-slate-200 dark:border-slate-800/40">
+        <div className="flex items-center gap-2 pt-2 border-t border-zinc-250 dark:border-zinc-800/40">
           <img
             src={assignee.avatar}
             alt={assignee.name}
-            className="w-5 h-5 rounded-full object-cover bg-slate-200 dark:bg-slate-800"
+            className="w-5 h-5 rounded-full object-cover bg-zinc-200 dark:bg-zinc-800"
           />
-          <span className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+          <span className="text-xs text-zinc-500 dark:text-zinc-400 font-medium truncate">
             {assignee.name}
           </span>
         </div>
@@ -139,11 +146,11 @@ const Column = memo(function Column({ col, tasks, users, onSelectTask }: ColumnP
   return (
     <div
       ref={setNodeRef}
-      className="flex flex-col bg-slate-100/40 rounded-xl p-4 border border-slate-200 dark:bg-slate-900/40 dark:border-slate-800/80 max-h-[80vh] overflow-hidden transition-colors"
+      className="flex flex-col bg-zinc-50/50 rounded-lg p-4 border border-zinc-200 dark:bg-zinc-900/20 dark:border-zinc-800/80 max-h-[80vh] overflow-hidden transition-colors"
     >
-      <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-200 dark:border-slate-800/40">
-        <h3 className="font-semibold text-slate-800 dark:text-slate-200 text-sm tracking-wide">{col.label}</h3>
-        <span className="px-2 py-0.5 rounded-full bg-slate-200 dark:bg-slate-800 text-xs font-semibold text-slate-600 dark:text-slate-400">
+      <div className="flex justify-between items-center mb-4 pb-2 border-b border-zinc-205 dark:border-zinc-800/40">
+        <h3 className="font-bold text-zinc-700 dark:text-zinc-200 text-xs uppercase tracking-wider">{col.label}</h3>
+        <span className="px-2 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-[10px] font-bold text-zinc-650 dark:text-zinc-405">
           {columnTasks.length}
         </span>
       </div>
@@ -154,7 +161,7 @@ const Column = memo(function Column({ col, tasks, users, onSelectTask }: ColumnP
             <TaskCard key={task.id} task={task} users={users} onSelectTask={onSelectTask} />
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center py-8 px-4 border border-dashed border-slate-300 dark:border-slate-800 rounded-xl text-slate-400 dark:text-slate-600 text-xs">
+          <div className="flex flex-col items-center justify-center py-8 px-4 border border-dashed border-zinc-300 dark:border-zinc-800 rounded-lg text-zinc-400 dark:text-zinc-600 text-xs">
             No tasks
           </div>
         )}
@@ -361,10 +368,10 @@ export default function Board() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800/85 rounded-2xl p-4 transition-colors duration-200">
+      <div className="flex justify-between items-center bg-white border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800/80 rounded-lg p-4 transition-colors duration-200">
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100 tracking-wide">Kanban Board</h1>
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Manage, assign, and organize sprint tasks.</p>
+          <h1 className="text-base font-bold text-zinc-850 dark:text-zinc-200 tracking-wide uppercase">Kanban Board</h1>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">Manage, assign, and organize sprint tasks.</p>
         </div>
         <Button onClick={() => setIsAddTaskOpen(true)} className="px-4 py-2 text-xs font-semibold">
           + Add Task
@@ -429,8 +436,8 @@ export default function Board() {
               </Button>
             </form>
 
-            <div className="pt-6 border-t border-slate-200 dark:border-slate-800 space-y-4">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-200">Comments ({taskComments.length})</h3>
+            <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800/80 space-y-4">
+              <h3 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Comments ({taskComments.length})</h3>
 
               <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
                 {taskComments.length > 0 ? (
@@ -438,8 +445,8 @@ export default function Board() {
                     {taskServerComments.map((comment) => {
                       const commentAuthor = users?.find((u) => u.id === comment.authorId);
                       return (
-                        <div key={`server-${comment.id}`} className="bg-slate-50 border border-slate-200 dark:bg-slate-950/60 dark:border-slate-800/60 rounded-xl p-3 space-y-1">
-                          <div className="flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                        <div key={`server-${comment.id}`} className="bg-zinc-50/50 border border-zinc-205 dark:bg-zinc-950/40 dark:border-zinc-800/60 rounded-lg p-3 space-y-1">
+                          <div className="flex justify-between items-center text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
                             <span>{commentAuthor ? commentAuthor.name : 'Unknown User'}</span>
                             <span>
                               {new Date(comment.createdAt).toLocaleDateString(undefined, {
@@ -450,15 +457,15 @@ export default function Board() {
                               })}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-700 dark:text-slate-300 break-words">{comment.message}</p>
+                          <p className="text-xs text-zinc-700 dark:text-zinc-300 break-words">{comment.message}</p>
                         </div>
                       );
                     })}
                     {taskClientComments.map((comment) => {
                       const commentAuthor = users?.find((u) => u.id === comment.authorId);
                       return (
-                        <div key={`client-${comment.id}`} className="bg-slate-50 border border-slate-200 dark:bg-slate-950/60 dark:border-slate-800/60 rounded-xl p-3 space-y-1">
-                          <div className="flex justify-between items-center text-[10px] text-slate-500 dark:text-slate-400 font-medium">
+                        <div key={`client-${comment.id}`} className="bg-zinc-50/50 border border-zinc-205 dark:bg-zinc-950/40 dark:border-zinc-800/60 rounded-lg p-3 space-y-1">
+                          <div className="flex justify-between items-center text-[10px] text-zinc-500 dark:text-zinc-400 font-medium">
                             <span>{commentAuthor ? commentAuthor.name : 'Unknown User'}</span>
                             <span>
                               {new Date(comment.createdAt).toLocaleDateString(undefined, {
@@ -469,13 +476,13 @@ export default function Board() {
                               })}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-700 dark:text-slate-300 break-words">{comment.message}</p>
+                          <p className="text-xs text-zinc-700 dark:text-zinc-300 break-words">{comment.message}</p>
                         </div>
                       );
                     })}
                   </>
                 ) : (
-                  <p className="text-xs text-slate-400 dark:text-slate-500 italic">No comments posted yet.</p>
+                  <p className="text-xs text-zinc-400 dark:text-zinc-500 italic">No comments posted yet.</p>
                 )}
               </div>
 
@@ -494,7 +501,7 @@ export default function Board() {
               </form>
             </div>
 
-            <div className="pt-6 border-t border-slate-200 dark:border-slate-800">
+            <div className="pt-6 border-t border-zinc-200 dark:border-zinc-800/80">
               <Button onClick={() => setIsDeleteConfirmOpen(true)} variant="danger" className="w-full">
                 Delete Task
               </Button>

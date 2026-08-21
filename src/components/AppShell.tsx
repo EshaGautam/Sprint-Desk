@@ -63,21 +63,21 @@ export default function AppShell() {
   ];
 
   return (
-    <div className="flex h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors duration-200">
-      <aside className="w-64 bg-slate-100 border-r border-slate-200 dark:bg-slate-900 dark:border-slate-800 flex flex-col transition-colors duration-200">
-        <div className="px-6 py-5 border-b border-slate-200 dark:border-slate-800">
-          <span className="text-lg font-bold tracking-wide">SprintDesk</span>
+    <div className="flex h-screen bg-stone-50 text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100 transition-colors duration-200">
+      <aside className="w-64 bg-zinc-50 border-r border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800/80 flex flex-col transition-colors duration-200">
+        <div className="px-6 py-5 border-b border-zinc-200 dark:border-zinc-800/80">
+          <span className="text-sm font-bold tracking-wider text-zinc-800 dark:text-zinc-200 uppercase">SprintDesk</span>
         </div>
-        <nav className="flex-1 px-4 py-6 space-y-1">
+        <nav className="flex-1 px-4 py-6 space-y-1.5">
           {navItems.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               className={({ isActive }) =>
-                `block px-4 py-3 rounded-xl transition-colors ${
+                `relative block px-4 py-2.5 rounded-lg transition-colors text-xs font-semibold uppercase tracking-wider ${
                   isActive
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/10'
-                    : 'text-slate-600 hover:bg-slate-200 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200'
+                    ? 'bg-zinc-200/50 text-zinc-900 dark:bg-zinc-800/50 dark:text-white border-l-2 border-emerald-600'
+                    : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-200 border-l-2 border-transparent'
                 }`
               }
             >
@@ -85,10 +85,10 @@ export default function AppShell() {
             </NavLink>
           ))}
         </nav>
-        <div className="p-4 border-t border-slate-200 dark:border-slate-800">
+        <div className="p-4 border-t border-zinc-200 dark:border-zinc-800/80">
           <button
             onClick={handleLogout}
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-600 hover:bg-slate-200 hover:text-slate-900 dark:border-slate-800 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200 transition-colors text-sm font-medium"
+            className="w-full px-4 py-2.5 rounded-lg border border-zinc-300 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-850 dark:hover:text-zinc-200 transition-colors text-xs font-semibold uppercase tracking-wider"
           >
             Logout
           </button>
@@ -96,13 +96,13 @@ export default function AppShell() {
       </aside>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 dark:bg-slate-900 dark:border-slate-800 relative transition-colors duration-200">
-          <h2 className="text-xl font-bold tracking-wide">{getPageTitle()}</h2>
+        <header className="flex items-center justify-between px-6 py-4 bg-white border-b border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800/80 relative transition-colors duration-200">
+          <h2 className="text-base font-bold tracking-wide text-zinc-800 dark:text-zinc-200 uppercase">{getPageTitle()}</h2>
 
           <div className="flex items-center gap-2 relative">
             <button
               onClick={toggleTheme}
-              className="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-xl"
+              className="p-2 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-lg"
               aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} theme`}
               data-testid="theme-toggle"
             >
@@ -119,7 +119,7 @@ export default function AppShell() {
 
             <button
               onClick={togglePanel}
-              className="relative p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-xl"
+              className="relative p-2 text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2 rounded-lg"
               aria-label="Notification bell"
               data-testid="notification-bell"
             >
@@ -128,7 +128,7 @@ export default function AppShell() {
               </svg>
               {unreadCount > 0 && (
                 <span
-                  className="absolute top-1 right-1 h-4 min-w-4 px-1 rounded-full bg-red-500 text-[10px] font-bold text-white flex items-center justify-center border border-white dark:border-slate-900"
+                  className="absolute top-1 right-1 h-3.5 min-w-[14px] px-1 rounded-full bg-emerald-600 text-[9px] font-bold text-white flex items-center justify-center border border-white dark:border-zinc-900"
                   data-testid="notification-badge"
                 >
                   {unreadCount}
@@ -140,14 +140,14 @@ export default function AppShell() {
               <div
                 role="dialog"
                 aria-label="Notification Panel"
-                className="absolute right-0 top-12 w-80 bg-white border border-slate-200 dark:bg-slate-900 dark:border-slate-800 rounded-2xl shadow-xl z-50 p-4 space-y-4 flex flex-col max-h-[450px] text-slate-900 dark:text-slate-100 transition-colors duration-200"
+                className="absolute right-0 top-12 w-80 bg-white border border-zinc-200 dark:bg-zinc-900 dark:border-zinc-800/80 rounded-xl shadow-xl z-50 p-4 space-y-4 flex flex-col max-h-[450px] text-zinc-900 dark:text-zinc-100 transition-colors duration-200"
               >
-                <div className="flex justify-between items-center pb-2 border-b border-slate-200 dark:border-slate-800/60">
-                  <h3 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Notifications</h3>
+                <div className="flex justify-between items-center pb-2 border-b border-zinc-200 dark:border-zinc-850">
+                  <h3 className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">Notifications</h3>
                   {unreadCount > 0 && (
                     <button
                       onClick={markAllAsRead}
-                      className="text-[10px] font-bold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors font-medium"
+                      className="text-[10px] font-bold text-emerald-600 hover:text-emerald-500 dark:text-emerald-400 dark:hover:text-emerald-300 transition-colors"
                     >
                       Mark all read
                     </button>
@@ -168,45 +168,45 @@ export default function AppShell() {
                             markAsRead(item.id);
                           }
                         }}
-                        className={`p-3 rounded-xl border ${
+                        className={`p-3 rounded-lg border text-left ${
                           item.read
-                            ? 'bg-slate-50 border-slate-200 text-slate-400 dark:bg-slate-950/40 dark:border-slate-900 dark:text-slate-500'
-                            : 'bg-slate-100/60 border-slate-200 text-slate-800 hover:bg-slate-200/40 dark:bg-slate-900/60 dark:border-slate-800/80 dark:text-slate-100 dark:hover:bg-slate-800/40'
+                            ? 'bg-zinc-50 border-zinc-200 text-zinc-400 dark:bg-zinc-950/20 dark:border-zinc-900 dark:text-zinc-500'
+                            : 'bg-zinc-100/40 border-zinc-250 text-zinc-800 hover:bg-zinc-200/20 dark:bg-zinc-900/40 dark:border-zinc-800/80 dark:text-zinc-100 dark:hover:bg-zinc-800/40'
                         } transition-colors flex items-start gap-3 cursor-pointer`}
                         data-testid={`notification-item-${item.id}`}
                       >
                         <div className="flex-1 space-y-1">
                           <div className="flex justify-between items-start gap-2">
                             <h4 className="text-xs font-semibold leading-tight break-words">{item.title}</h4>
-                            {!item.read && <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 flex-shrink-0 mt-1" />}
+                            {!item.read && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0 mt-1" />}
                           </div>
-                          <p className="text-[10px] text-slate-500 dark:text-slate-400 leading-snug line-clamp-2">{item.message}</p>
+                          <p className="text-[10px] text-zinc-500 dark:text-zinc-400 leading-snug line-clamp-2">{item.message}</p>
                         </div>
                       </div>
                     ))
                   ) : (
-                    <div className="py-8 text-center text-xs text-slate-400 italic">
+                    <div className="py-8 text-center text-xs text-zinc-400 italic">
                       No notifications
                     </div>
                   )}
                 </div>
 
                 {totalPages > 1 && (
-                  <div className="flex items-center justify-between pt-3 border-t border-slate-200 dark:border-slate-800/60 text-[10px]">
+                  <div className="flex items-center justify-between pt-3 border-t border-zinc-200 dark:border-zinc-800/80 text-[10px]">
                     <button
                       disabled={currentPage === 1}
                       onClick={() => setCurrentPage((c) => Math.max(1, c - 1))}
-                      className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                      className="px-2.5 py-1 rounded-lg bg-zinc-100 text-zinc-750 hover:bg-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-750 transition-colors"
                     >
                       Prev
                     </button>
-                    <span className="text-slate-400 font-semibold">
+                    <span className="text-zinc-400 font-semibold">
                       Page {currentPage} of {totalPages}
                     </span>
                     <button
                       disabled={currentPage === totalPages}
                       onClick={() => setCurrentPage((c) => Math.min(totalPages, c + 1))}
-                      className="px-2.5 py-1 rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 disabled:opacity-30 disabled:cursor-not-allowed dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 transition-colors"
+                      className="px-2.5 py-1 rounded-lg bg-zinc-100 text-zinc-750 hover:bg-zinc-200 disabled:opacity-30 disabled:cursor-not-allowed dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-750 transition-colors"
                     >
                       Next
                     </button>
@@ -217,7 +217,7 @@ export default function AppShell() {
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto p-6 bg-slate-50 dark:bg-slate-950 transition-colors duration-200">
+        <main className="flex-1 overflow-y-auto p-6 bg-stone-50 dark:bg-zinc-950 transition-colors duration-200">
           <Outlet />
         </main>
       </div>
