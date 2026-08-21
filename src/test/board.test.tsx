@@ -3,11 +3,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Board from '../pages/Board';
 import { useSprintTasks } from '../hooks/useSprintTasks';
 import { useUsers } from '../hooks/useUsers';
+import { useComments } from '../hooks/useComments';
 import { useBoardStore } from '../stores/boardStore';
 import type { Task } from '../types';
 
 vi.mock('../hooks/useSprintTasks');
 vi.mock('../hooks/useUsers');
+vi.mock('../hooks/useComments');
 
 const mockTasks: Task[] = [
   {
@@ -49,6 +51,11 @@ describe('Kanban Board UI', () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     useBoardStore.getState().resetBoard();
+    vi.mocked(useComments).mockReturnValue({
+      data: [],
+      isLoading: false,
+      isError: false,
+    } as any);
   });
 
   it('renders loading states correctly using skeletons', () => {
@@ -59,6 +66,12 @@ describe('Kanban Board UI', () => {
     } as any);
 
     vi.mocked(useUsers).mockReturnValue({
+      data: undefined,
+      isLoading: true,
+      isError: false,
+    } as any);
+
+    vi.mocked(useComments).mockReturnValue({
       data: undefined,
       isLoading: true,
       isError: false,

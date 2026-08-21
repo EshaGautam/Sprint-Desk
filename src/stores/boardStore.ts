@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Task, TaskStatus } from '../types';
+import type { Task, TaskStatus, Comment } from '../types';
 
 export const BOARD_COLUMNS: { id: TaskStatus; label: string }[] = [
   { id: 'backlog', label: 'Backlog' },
@@ -11,12 +11,14 @@ export const BOARD_COLUMNS: { id: TaskStatus; label: string }[] = [
 
 interface BoardState {
   tasks: Task[];
+  comments: Comment[];
   hasInitialized: boolean;
   initializeBoard: (tasks: Task[]) => void;
   addTask: (task: Omit<Task, 'id' | 'createdAt' | 'updatedAt' | 'order'>) => void;
   moveTask: (taskId: number, targetStatus: TaskStatus, newOrder: number) => void;
   editTask: (taskId: number, updatedFields: Partial<Omit<Task, 'id' | 'createdAt'>>) => void;
   deleteTask: (taskId: number) => void;
+  addComment: (comment: Omit<Comment, 'id' | 'createdAt'>) => void;
   resetBoard: () => void;
 }
 
@@ -24,6 +26,7 @@ export const useBoardStore = create<BoardState>()(
   persist(
     (set, get) => ({
       tasks: [],
+      comments: [],
       hasInitialized: false,
 
       initializeBoard: (initialTasks) => {
@@ -141,9 +144,24 @@ export const useBoardStore = create<BoardState>()(
         set({ tasks: updatedTasks });
       },
 
+      addComment: (commentInput) => {
+        const comments = get().comments;
+        const newId = comments.length > 0 ? Math.max(...comments.map((c) => c.id)) + 1 : 1;
+        const now = new Date().toISOString();
+
+        const newComment: Comment = {
+          ...commentInput,
+          id: newId,
+          createdAt: now,
+        };
+
+        set({ comments: [...comments, newComment] });
+      },
+
       resetBoard: () => {
         set({
           tasks: [],
+          comments: [],
           hasInitialized: false,
         });
       },
@@ -152,6 +170,7 @@ export const useBoardStore = create<BoardState>()(
       name: 'board-store',
       partialize: (state) => ({
         tasks: state.tasks,
+        comments: state.comments,
         hasInitialized: state.hasInitialized,
       }),
     }

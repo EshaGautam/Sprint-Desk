@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import {
   DndContext,
   useSensor,
@@ -10,15 +10,19 @@ import {
 } from '@dnd-kit/core';
 import { useSprintTasks } from '../hooks/useSprintTasks';
 import { useUsers } from '../hooks/useUsers';
+import { useComments } from '../hooks/useComments';
 import { useBoardStore, BOARD_COLUMNS } from '../stores/boardStore';
+import { useAuthStore } from '../stores/authStore';
+import { Button, Input, Select, Modal, Drawer } from '../components';
 import type { Task, TaskStatus, TaskPriority, User } from '../types';
 
 interface TaskCardProps {
   task: Task;
   users?: User[];
+  onClick: () => void;
 }
 
-function TaskCard({ task, users }: TaskCardProps) {
+function TaskCard({ task, users, onClick }: TaskCardProps) {
   const { attributes, listeners, setNodeRef: setDragRef, transform, isDragging } = useDraggable({
     id: task.id,
   });
@@ -57,9 +61,10 @@ function TaskCard({ task, users }: TaskCardProps) {
       style={style}
       {...listeners}
       {...attributes}
+      onClick={onClick}
       className={`bg-slate-900 border ${
-        isDragging ? 'border-indigo-500 shadow-xl' : 'border-slate-800/60'
-      } rounded-xl p-4 space-y-3 hover:border-slate-700/60 transition-colors select-none`}
+        isDragging ? 'border-indigo-500 shadow-xl' : 'border-slate-800/60 hover:border-slate-700/60'
+      } rounded-xl p-4 space-y-3 transition-colors cursor-pointer select-none`}
       data-testid={`task-card-${task.id}`}
     >
       <h4 className="text-slate-100 font-medium text-sm leading-snug break-words">
@@ -105,9 +110,10 @@ interface ColumnProps {
   col: { id: TaskStatus; label: string };
   tasks: Task[];
   users?: User[];
+  onSelectTask: (id: number) => void;
 }
 
-function Column({ col, tasks, users }: ColumnProps) {
+function Column({ col, tasks, users, onSelectTask }: ColumnProps) {
   const { setNodeRef } = useDroppable({
     id: col.id,
   });
@@ -131,7 +137,7 @@ function Column({ col, tasks, users }: ColumnProps) {
       <div className="flex-1 overflow-y-auto space-y-3 pr-1 scrollbar-thin">
         {columnTasks.length > 0 ? (
           columnTasks.map((task) => (
-            <TaskCard key={task.id} task={task} users={users} />
+            <TaskCard key={task.id} task={task} users={users} onClick={() => onSelectTask(task.id)} />
           ))
         ) : (
           <div className="flex flex-col items-center justify-center py-8 px-4 border border-dashed border-slate-800 rounded-xl text-slate-600 text-xs">
@@ -146,8 +152,50 @@ function Column({ col, tasks, users }: ColumnProps) {
 export default function Board() {
   const { data: serverTasks, isLoading: isLoadingTasks, isError: isErrorTasks } = useSprintTasks();
   const { data: users, isLoading: isLoadingUsers, isError: isErrorUsers } = useUsers();
+  const { data: serverComments, isLoading: isLoadingComments } = useComments();
 
-  const { tasks, initializeBoard, moveTask } = useBoardStore();
+  const { tasks, comments, initializeBoard, addTask, moveTask, editTask, deleteTask, addComment } = useBoardStore();
+  const currentUsername = useAuthStore((state) => state.username);
+
+  // Selected task state for details drawer
+  const [selectedTaskId, setSelectedTaskId] = useState<number | null>(null);
+
+  // Form states for editing
+  const [editTitle, setEditTitle] = useState('');
+  const [editDescription, setEditDescription] = useState('');
+  const [editStatus, setEditStatus] = useState<TaskStatus>('backlog');
+  const [editPriority, setEditPriority] = useState<TaskPriority>('medium');
+  const [editAssigneeId, setEditAssigneeId] = useState<number>(0);
+  const [editDueDate, setEditDueDate] = useState('');
+
+  // Comment input state
+  const [newCommentMessage, setNewCommentMessage] = useState('');
+
+  // Add Task Modal state
+  const [isAddTaskOpen, setIsAddTaskOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState('');
+  const [newDescription, setNewDescription] = useState('');
+  const [newStatus, setNewStatus] = useState<TaskStatus>('backlog');
+  const [newPriority, setNewPriority] = useState<TaskPriority>('medium');
+  const [newAssigneeId, setNewAssigneeId] = useState<number>(0);
+  const [newDueDate, setNewDueDate] = useState('');
+
+  // Delete Confirm Modal state
+  const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
+
+  const selectedTask = tasks.find((t) => t.id === selectedTaskId);
+
+  // Populate edit fields when task selection changes
+  useEffect(() => {
+    if (selectedTask) {
+      setEditTitle(selectedTask.title);
+      setEditDescription(selectedTask.description);
+      setEditStatus(selectedTask.status);
+      setEditPriority(selectedTask.priority);
+      setEditAssigneeId(selectedTask.assigneeId);
+      setEditDueDate(selectedTask.dueDate || '');
+    }
+  }, [selectedTaskId, selectedTask]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -169,7 +217,7 @@ export default function Board() {
     }
   }, [serverTasks, initializeBoard]);
 
-  if (isLoadingTasks || isLoadingUsers) {
+  if (isLoadingTasks || isLoadingUsers || isLoadingComments) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {BOARD_COLUMNS.map((col) => (
@@ -223,13 +271,300 @@ export default function Board() {
     }
   };
 
+  const handleSaveTask = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTaskId || !editTitle.trim()) return;
+
+    editTask(selectedTaskId, {
+      title: editTitle,
+      description: editDescription,
+      status: editStatus,
+      priority: editPriority,
+      assigneeId: editAssigneeId,
+      dueDate: editDueDate,
+    });
+  };
+
+  const handleAddComment = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTaskId || !newCommentMessage.trim()) return;
+
+    const currentUser = users?.find((u) => u.name.toLowerCase().includes(currentUsername?.toLowerCase() || ''));
+    const authorId = currentUser ? currentUser.id : 1;
+
+    addComment({
+      taskId: selectedTaskId,
+      message: newCommentMessage,
+      authorId,
+    });
+    setNewCommentMessage('');
+  };
+
+  const handleAddTask = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newTitle.trim()) return;
+
+    addTask({
+      title: newTitle,
+      description: newDescription,
+      status: newStatus,
+      priority: newPriority,
+      assigneeId: newAssigneeId || (users && users.length > 0 ? users[0].id : 1),
+      dueDate: newDueDate,
+      completedAt: null,
+      sprintId: 1,
+    });
+
+    setNewTitle('');
+    setNewDescription('');
+    setNewStatus('backlog');
+    setNewPriority('medium');
+    setNewAssigneeId(0);
+    setNewDueDate('');
+    setIsAddTaskOpen(false);
+  };
+
+  const handleDeleteTask = () => {
+    if (!selectedTaskId) return;
+    deleteTask(selectedTaskId);
+    setIsDeleteConfirmOpen(false);
+    setSelectedTaskId(null);
+  };
+
+  const assigneeOptions = users?.map((u) => ({ value: u.id, label: u.name })) || [];
+  const statusOptions = BOARD_COLUMNS.map((col) => ({ value: col.id, label: col.label }));
+  const priorityOptions = [
+    { value: 'low', label: 'Low' },
+    { value: 'medium', label: 'Medium' },
+    { value: 'high', label: 'High' },
+  ];
+
+  const taskServerComments = serverComments?.filter((c) => c.taskId === selectedTaskId) || [];
+  const taskClientComments = comments.filter((c) => c.taskId === selectedTaskId);
+  const taskComments = [...taskServerComments, ...taskClientComments];
+
   return (
-    <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {BOARD_COLUMNS.map((col) => (
-          <Column key={col.id} col={col} tasks={tasks} users={users} />
-        ))}
+    <div className="space-y-6">
+      {/* Top Header Control bar */}
+      <div className="flex justify-between items-center bg-slate-900 border border-slate-800/85 rounded-2xl p-4">
+        <div>
+          <h1 className="text-xl font-bold text-slate-100 tracking-wide">Kanban Board</h1>
+          <p className="text-xs text-slate-400 mt-1">Manage, assign, and organize sprint tasks.</p>
+        </div>
+        <Button onClick={() => setIsAddTaskOpen(true)} className="px-4 py-2 text-xs font-semibold">
+          + Add Task
+        </Button>
       </div>
-    </DndContext>
+
+      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {BOARD_COLUMNS.map((col) => (
+            <Column key={col.id} col={col} tasks={tasks} users={users} onSelectTask={setSelectedTaskId} />
+          ))}
+        </div>
+      </DndContext>
+
+      {/* Task Details Side Drawer */}
+      <Drawer isOpen={selectedTaskId !== null} onClose={() => setSelectedTaskId(null)} title="Task Details">
+        {selectedTask ? (
+          <div className="space-y-6">
+            {/* Edit Fields Form */}
+            <form onSubmit={handleSaveTask} className="space-y-4">
+              <Input
+                label="Task Title"
+                id="edit-title"
+                value={editTitle}
+                onChange={(e) => setEditTitle(e.target.value)}
+                required
+              />
+              <Input
+                label="Description"
+                id="edit-description"
+                value={editDescription}
+                onChange={(e) => setEditDescription(e.target.value)}
+              />
+              <Select
+                label="Column"
+                id="edit-status"
+                value={editStatus}
+                onChange={(e) => setEditStatus(e.target.value as TaskStatus)}
+                options={statusOptions}
+              />
+              <Select
+                label="Priority"
+                id="edit-priority"
+                value={editPriority}
+                onChange={(e) => setEditPriority(e.target.value as TaskPriority)}
+                options={priorityOptions}
+              />
+              <Select
+                label="Assignee"
+                id="edit-assignee"
+                value={editAssigneeId}
+                onChange={(e) => setEditAssigneeId(Number(e.target.value))}
+                options={assigneeOptions}
+              />
+              <Input
+                label="Due Date"
+                id="edit-duedate"
+                type="date"
+                value={editDueDate}
+                onChange={(e) => setEditDueDate(e.target.value)}
+              />
+              <Button type="submit" className="w-full mt-2">
+                Save Changes
+              </Button>
+            </form>
+
+            {/* Comments Area */}
+            <div className="pt-6 border-t border-slate-800 space-y-4">
+              <h3 className="text-sm font-semibold text-slate-200">Comments ({taskComments.length})</h3>
+
+              <div className="space-y-3 max-h-48 overflow-y-auto pr-1">
+                {taskComments.length > 0 ? (
+                  <>
+                    {taskServerComments.map((comment) => {
+                      const commentAuthor = users?.find((u) => u.id === comment.authorId);
+                      return (
+                        <div key={`server-${comment.id}`} className="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 space-y-1">
+                          <div className="flex justify-between items-center text-[10px] text-slate-500 font-medium">
+                            <span>{commentAuthor ? commentAuthor.name : 'Unknown User'}</span>
+                            <span>
+                              {new Date(comment.createdAt).toLocaleDateString(undefined, {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-300 break-words">{comment.message}</p>
+                        </div>
+                      );
+                    })}
+                    {taskClientComments.map((comment) => {
+                      const commentAuthor = users?.find((u) => u.id === comment.authorId);
+                      return (
+                        <div key={`client-${comment.id}`} className="bg-slate-950/60 border border-slate-800/60 rounded-xl p-3 space-y-1">
+                          <div className="flex justify-between items-center text-[10px] text-slate-500 font-medium">
+                            <span>{commentAuthor ? commentAuthor.name : 'Unknown User'}</span>
+                            <span>
+                              {new Date(comment.createdAt).toLocaleDateString(undefined, {
+                                month: 'short',
+                                day: 'numeric',
+                                hour: '2-digit',
+                                minute: '2-digit',
+                              })}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-300 break-words">{comment.message}</p>
+                        </div>
+                      );
+                    })}
+                  </>
+                ) : (
+                  <p className="text-xs text-slate-500 italic">No comments posted yet.</p>
+                )}
+              </div>
+
+              {/* Add Comment Input Form */}
+              <form onSubmit={handleAddComment} className="flex gap-2">
+                <Input
+                  id="new-comment"
+                  value={newCommentMessage}
+                  onChange={(e) => setNewCommentMessage(e.target.value)}
+                  placeholder="Write a comment..."
+                  className="flex-1"
+                />
+                <Button type="submit" className="px-3 self-end h-[42px] text-xs font-semibold">
+                  Post
+                </Button>
+              </form>
+            </div>
+
+            {/* Delete Block */}
+            <div className="pt-6 border-t border-slate-800">
+              <Button onClick={() => setIsDeleteConfirmOpen(true)} variant="danger" className="w-full">
+                Delete Task
+              </Button>
+            </div>
+          </div>
+        ) : null}
+      </Drawer>
+
+      {/* Create Task Modal */}
+      <Modal isOpen={isAddTaskOpen} onClose={() => setIsAddTaskOpen(false)} title="Create New Task">
+        <form onSubmit={handleAddTask} className="space-y-4">
+          <Input
+            label="Task Title"
+            id="new-title"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            required
+            placeholder="Enter task title"
+          />
+          <Input
+            label="Description"
+            id="new-description"
+            value={newDescription}
+            onChange={(e) => setNewDescription(e.target.value)}
+            placeholder="Enter description"
+          />
+          <Select
+            label="Column"
+            id="new-status"
+            value={newStatus}
+            onChange={(e) => setNewStatus(e.target.value as TaskStatus)}
+            options={statusOptions}
+          />
+          <Select
+            label="Priority"
+            id="new-priority"
+            value={newPriority}
+            onChange={(e) => setNewPriority(e.target.value as TaskPriority)}
+            options={priorityOptions}
+          />
+          <Select
+            label="Assignee"
+            id="new-assignee"
+            value={newAssigneeId}
+            onChange={(e) => setNewAssigneeId(Number(e.target.value))}
+            options={assigneeOptions}
+          />
+          <Input
+            label="Due Date"
+            id="new-duedate"
+            type="date"
+            value={newDueDate}
+            onChange={(e) => setNewDueDate(e.target.value)}
+          />
+          <div className="flex gap-3 justify-end pt-4">
+            <Button type="button" variant="secondary" onClick={() => setIsAddTaskOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="submit">
+              Create Task
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal isOpen={isDeleteConfirmOpen} onClose={() => setIsDeleteConfirmOpen(false)} title="Confirm Task Deletion">
+        <div className="space-y-4">
+          <p className="text-sm text-slate-300">
+            Are you sure you want to delete the task <strong className="text-slate-100">"{selectedTask?.title}"</strong>? This action cannot be undone.
+          </p>
+          <div className="flex gap-3 justify-end pt-4">
+            <Button type="button" variant="secondary" onClick={() => setIsDeleteConfirmOpen(false)}>
+              Cancel
+            </Button>
+            <Button type="button" variant="danger" onClick={handleDeleteTask}>
+              Confirm Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </div>
   );
 }

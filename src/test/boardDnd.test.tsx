@@ -3,11 +3,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import Board from '../pages/Board';
 import { useSprintTasks } from '../hooks/useSprintTasks';
 import { useUsers } from '../hooks/useUsers';
+import { useComments } from '../hooks/useComments';
 import { useBoardStore } from '../stores/boardStore';
 import type { Task } from '../types';
 
 vi.mock('../hooks/useSprintTasks');
 vi.mock('../hooks/useUsers');
+vi.mock('../hooks/useComments');
 
 vi.mock('@dnd-kit/core', async () => {
   const actual = await vi.importActual('@dnd-kit/core') as any;
@@ -54,6 +56,12 @@ describe('Kanban Board Drag and Drop', () => {
 
     vi.mocked(useUsers).mockReturnValue({
       data: mockUsers,
+      isLoading: false,
+      isError: false,
+    } as any);
+
+    vi.mocked(useComments).mockReturnValue({
+      data: [],
       isLoading: false,
       isError: false,
     } as any);
