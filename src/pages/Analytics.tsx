@@ -1,8 +1,240 @@
+import { useEffect } from 'react';
+import { useSprintTasks } from '../hooks/useSprintTasks';
+import { useBoardStore } from '../stores/boardStore';
+import {
+  ResponsiveContainer,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  CartesianGrid,
+} from 'recharts';
+
 export default function Analytics() {
+  const { data: serverTasks, isLoading, isError } = useSprintTasks();
+  const { tasks, initializeBoard, hasInitialized } = useBoardStore();
+
+  useEffect(() => {
+    if (serverTasks && !hasInitialized) {
+      initializeBoard(serverTasks);
+    }
+  }, [serverTasks, initializeBoard, hasInitialized]);
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6">
+        <div className="h-12 bg-slate-900/60 rounded-xl animate-pulse w-1/4" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="h-[350px] bg-slate-900/60 rounded-2xl animate-pulse" />
+          <div className="h-[350px] bg-slate-900/60 rounded-2xl animate-pulse" />
+          <div className="h-[350px] bg-slate-900/60 rounded-2xl animate-pulse" />
+          <div className="h-[350px] bg-slate-900/60 rounded-2xl animate-pulse" />
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="p-4 bg-red-950/40 border border-red-800/60 text-red-200 rounded-xl text-sm" role="alert">
+        Failed to load analytics data. Please try again.
+      </div>
+    );
+  }
+
+  // 1. Sprint Velocity: Completed tasks grouped by sprintId
+  const velocityMap: Record<number, number> = {};
+  tasks.forEach((t) => {
+    if (t.status === 'done' && t.sprintId) {
+      velocityMap[t.sprintId] = (velocityMap[t.sprintId] || 0) + 1;
+    }
+  });
+
+  const velocityData = Object.keys(velocityMap)
+    .map((sId) => ({
+      name: `Sprint ${sId}`,
+      completed: velocityMap[Number(sId)],
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  // 2. Task Status: Task counts across columns
+  const statusCounts = {
+    backlog: 0,
+    'in-progress': 0,
+    review: 0,
+    done: 0,
+  };
+  tasks.forEach((t) => {
+    if (t.status in statusCounts) {
+      statusCounts[t.status]++;
+    }
+  });
+
+  const statusData = [
+    { name: 'Backlog', value: statusCounts.backlog, color: '#6366f1' },
+    { name: 'In Progress', value: statusCounts['in-progress'], color: '#f59e0b' },
+    { name: 'Review', value: statusCounts.review, color: '#ec4899' },
+    { name: 'Done', value: statusCounts.done, color: '#10b981' },
+  ].filter((d) => d.value > 0);
+
+  // 3. Priority Breakdown: low/medium/high counts per status column
+  const columnsOrder = ['backlog', 'in-progress', 'review', 'done'] as const;
+  const priorityData = columnsOrder.map((colId) => {
+    const colTasks = tasks.filter((t) => t.status === colId);
+    return {
+      name: colId === 'in-progress' ? 'In Progress' : colId.charAt(0).toUpperCase() + colId.slice(1),
+      low: colTasks.filter((t) => t.priority === 'low').length,
+      medium: colTasks.filter((t) => t.priority === 'medium').length,
+      high: colTasks.filter((t) => t.priority === 'high').length,
+    };
+  });
+
+  // 4. Completion Trend: cumulative done tasks sorted chronologically by completedAt
+  const completedTasks = tasks
+    .filter((t) => t.status === 'done' && t.completedAt)
+    .sort((a, b) => new Date(a.completedAt!).getTime() - new Date(b.completedAt!).getTime());
+
+  const trendMap: Record<string, number> = {};
+  completedTasks.forEach((t) => {
+    if (t.completedAt) {
+      const dateKey = new Date(t.completedAt).toLocaleDateString(undefined, {
+        month: 'short',
+        day: 'numeric',
+      });
+      trendMap[dateKey] = (trendMap[dateKey] || 0) + 1;
+    }
+  });
+
+  let cumulative = 0;
+  const trendData = Object.keys(trendMap).map((date) => {
+    cumulative += trendMap[date];
+    return {
+      date,
+      completed: cumulative,
+    };
+  });
+
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-2">Analytics</h1>
-      <p className="text-slate-400 text-sm">Welcome to the SprintDesk analytics placeholder.</p>
+    <div className="space-y-6 max-w-full overflow-hidden">
+      <div>
+        <h1 className="text-xl font-bold text-slate-100 tracking-wide">Analytics</h1>
+        <p className="text-xs text-slate-400 mt-1">Real-time metrics and progress insights.</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* 1. Sprint Velocity */}
+        <div className="bg-slate-900 border border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px]">
+          <h2 className="text-sm font-semibold text-slate-200 mb-4 tracking-wide">Sprint Velocity</h2>
+          <div className="flex-1 min-h-0 w-full">
+            {velocityData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={velocityData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                  <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} allowDecimals={false} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '10px' }}
+                    labelStyle={{ color: '#f1f5f9', fontWeight: '600' }}
+                  />
+                  <Bar dataKey="completed" fill="#6366f1" radius={[4, 4, 0, 0]} maxBarSize={45} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-xs text-slate-500 italic">
+                No completed tasks found for Sprint Velocity.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 2. Task Status */}
+        <div className="bg-slate-900 border border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px]">
+          <h2 className="text-sm font-semibold text-slate-200 mb-4 tracking-wide">Task Status</h2>
+          <div className="flex-1 min-h-0 w-full">
+            {statusData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={statusData}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={55}
+                    outerRadius={80}
+                    paddingAngle={3}
+                    dataKey="value"
+                  >
+                    {statusData.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={entry.color} />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '10px' }}
+                  />
+                  <Legend verticalAlign="bottom" height={36} iconType="circle" wrapperStyle={{ fontSize: 11 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-xs text-slate-500 italic">
+                No tasks available for Status breakdown.
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* 3. Priority Breakdown */}
+        <div className="bg-slate-900 border border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px]">
+          <h2 className="text-sm font-semibold text-slate-200 mb-4 tracking-wide">Priority Breakdown</h2>
+          <div className="flex-1 min-h-0 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={priorityData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                <XAxis dataKey="name" stroke="#94a3b8" fontSize={11} tickLine={false} />
+                <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} allowDecimals={false} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '10px' }}
+                  labelStyle={{ color: '#f1f5f9', fontWeight: '600' }}
+                />
+                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="low" name="Low" stackId="a" fill="#94a3b8" />
+                <Bar dataKey="medium" name="Medium" stackId="a" fill="#f59e0b" />
+                <Bar dataKey="high" name="High" stackId="a" fill="#ef4444" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* 4. Completion Trend */}
+        <div className="bg-slate-900 border border-slate-800/80 rounded-2xl p-5 flex flex-col h-[350px]">
+          <h2 className="text-sm font-semibold text-slate-200 mb-4 tracking-wide">Completion Trend</h2>
+          <div className="flex-1 min-h-0 w-full">
+            {trendData.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={trendData} margin={{ top: 10, right: 15, left: -25, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" />
+                  <XAxis dataKey="date" stroke="#94a3b8" fontSize={11} tickLine={false} />
+                  <YAxis stroke="#94a3b8" fontSize={11} tickLine={false} allowDecimals={false} />
+                  <Tooltip
+                    contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '10px' }}
+                    labelStyle={{ color: '#f1f5f9', fontWeight: '600' }}
+                  />
+                  <Line type="monotone" dataKey="completed" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
+                </LineChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="h-full flex items-center justify-center text-xs text-slate-500 italic">
+                No completion date data recorded yet.
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
